@@ -1,0 +1,91 @@
+---
+import type { WPPost } from "../types.js";
+import { getFeaturedImage, formatDate } from "../api.js";
+
+export interface Props {
+  posts: WPPost[];
+  columns?: number;
+}
+
+const { posts, columns = 2 } = Astro.props;
+console.log("ps", posts.length);
+---
+
+<div class={`wp-posts-grid columns-${columns}`}>
+  {
+    posts.map((post) => {
+      const featuredImage = getFeaturedImage(post);
+
+      return (
+        <article class="wp-post-card">
+          <a href={`/post/${post.slug}`}>
+            {featuredImage && (
+              <img
+                class="wp-post-card-image"
+                src={featuredImage}
+                alt={post.title.rendered}
+              />
+            )}
+
+            <h2 set:html={post.title.rendered} />
+
+            <div class="wp-post-card-meta">
+              <time datetime={post.date}>{formatDate(post.date)}</time>
+            </div>
+
+            <div
+              class="wp-post-card-excerpt"
+              set:html={post.excerpt.rendered}
+            />
+          </a>
+        </article>
+      );
+    })
+  }
+</div>
+
+<style define:vars={{ columns }}>
+  .wp-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--columns), 1fr);
+    gap: 2rem;
+  }
+
+  .wp-post-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .wp-post-card a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    padding: 1rem;
+  }
+
+  .wp-post-card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .wp-post-card-meta {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .wp-posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

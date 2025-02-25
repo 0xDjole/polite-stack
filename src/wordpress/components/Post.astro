@@ -1,0 +1,80 @@
+---
+import type { WPPost } from '../types.js';
+import { getFeaturedImage, formatDate, getCategories, getTags } from '../api.js';
+
+export interface Props {
+  post: WPPost;
+  showFeaturedImage?: boolean;
+  showDate?: boolean;
+  showCategories?: boolean;
+}
+
+const { 
+  post, 
+  showFeaturedImage = true,
+  showDate = true,
+  showCategories = true 
+} = Astro.props;
+
+const featuredImage = getFeaturedImage(post);
+const categories = getCategories(post);
+const author = post._embedded?.author?.[0]?.name || 'Unknown';
+---
+
+<article class="wp-post">
+  <h1 set:html={post.title.rendered} />
+  
+  {showDate && (
+    <div class="wp-post-meta">
+      <time datetime={post.date}>{formatDate(post.date)}</time>
+      <span class="wp-post-author">by {author}</span>
+      
+      {showCategories && categories.length > 0 && (
+        <div class="wp-post-categories">
+          {categories.map((cat, i) => (
+            <>
+              <a href={`/category/${cat.slug}`}>{cat.name}</a>{i < categories.length - 1 ? ', ' : ''}
+            </>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
+  
+  {showFeaturedImage && featuredImage && (
+    <img class="wp-post-image" src={featuredImage} alt={post.title.rendered} />
+  )}
+  
+  <div class="wp-post-content" set:html={post.content.rendered} />
+</article>
+
+<style>
+  .wp-post {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .wp-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    color: #666;
+  }
+  
+  .wp-post-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+  }
+  
+  .wp-post-content {
+    line-height: 1.6;
+  }
+</style>

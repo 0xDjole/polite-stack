@@ -1,35 +1,83 @@
-# Astro Starter Kit: Component Package
+# Polite Stack
 
-This is a template for an Astro component library. Use this template for writing components to use in multiple projects or publish to NPM.
+A headless WordPress integration for Astro.
 
-```sh
-npm create astro@latest -- --template component
+## Features
+
+- WordPress REST API integration
+- Reusable Astro components
+- TypeScript support
+- Easy to use with minimal configuration
+
+## Installation
+
+```bash
+npm install polite-stack
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/non-html-pages)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/non-html-pages)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/component/devcontainer.json)
+## Usage
 
-## 🚀 Project Structure
+```astro
+---
+// src/pages/index.astro
+import Layout from "../layouts/Layout.astro";
+import { wordpress } from "polite-stack";
 
-Inside of your Astro project, you'll see the following folders and files:
+// Access components through the wordpress namespace
+const { Posts } = wordpress.components;
 
-```text
-/
-├── index.ts
-├── src
-│   └── MyComponent.astro
-├── tsconfig.json
-├── package.json
+// WordPress API URL
+const WP_API = "http://your-wordpress-site.com/wp-json";
+
+// Fetch posts
+const posts = await wordpress.getPosts(WP_API, { per_page: 6 });
+---
+<Layout title="WordPress Blog">
+  <main>
+    <h1>Latest Posts</h1>
+    <Posts posts={posts} columns={3} />
+  </main>
+</Layout>
 ```
 
-The `index.ts` file is the "entry point" for your package. Export your components in `index.ts` to make them importable from your package.
+## API
 
-## 🧞 Commands
+### WordPress API
 
-All commands are run from the root of the project, from a terminal:
+- `getPosts(endpoint, options)` - Fetch posts with options
+- `getPost(endpoint, slug)` - Fetch a single post by slug
+- `getPages(endpoint, options)` - Fetch pages with options
+- `getPage(endpoint, slug)` - Fetch a single page by slug
+- `getFeaturedImage(post)` - Get the featured image URL from a post
+- `getCategories(post)` - Get categories from a post
+- `getTags(post)` - Get tags from a post
+- `formatDate(dateString)` - Format a date string
 
-| Command       | Action                                                                                                                                                                                                                           |
-| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm link`    | Registers this package locally. Run `npm link my-component-library` in an Astro project to install your components                                                                                                               |
-| `npm publish` | [Publishes](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages#publishing-unscoped-public-packages) this package to NPM. Requires you to be [logged in](https://docs.npmjs.com/cli/v8/commands/npm-adduser) |
+### Components
+
+- `Post` - Renders a single post
+- `Posts` - Renders a grid of posts
+- `Page` - Renders a single page
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Lint code
+npm run lint
+
+# Format code
+npm run format
+```
+
+## License
+
+MIT

@@ -1,6 +1,6 @@
 ---
-import type { WPPost } from "../types.js";
-import { getFeaturedImage, formatDate } from "../api.js";
+import type { WPPost } from '../types.js';
+import { getFeaturedImage, formatDate } from '../api.js';
 
 export interface Props {
   posts: WPPost[];
@@ -8,7 +8,7 @@ export interface Props {
 }
 
 const { posts, columns = 2 } = Astro.props;
-console.log("ps", posts.length);
+console.log('ps', posts.length);
 ---
 
 <div class={`wp-posts-grid columns-${columns}`}>
@@ -20,11 +20,7 @@ console.log("ps", posts.length);
         <article class="wp-post-card">
           <a href={`/post/${post.slug}`}>
             {featuredImage && (
-              <img
-                class="wp-post-card-image"
-                src={featuredImage}
-                alt={post.title.rendered}
-              />
+              <img class="wp-post-card-image" src={featuredImage} alt={post.title.rendered} />
             )}
 
             <h2 set:html={post.title.rendered} />
@@ -33,10 +29,7 @@ console.log("ps", posts.length);
               <time datetime={post.date}>{formatDate(post.date)}</time>
             </div>
 
-            <div
-              class="wp-post-card-excerpt"
-              set:html={post.excerpt.rendered}
-            />
+            <div class="wp-post-card-excerpt" set:html={post.excerpt.rendered} />
           </a>
         </article>
       );

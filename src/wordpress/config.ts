@@ -1,5 +1,5 @@
 export const config = {
-  endpoint: null,
+  endpoint: '',
 };
 
 export function configure(options = {}) {

@@ -62,7 +62,7 @@ export function formatDate(dateString: string) {
 }
 
 // Updated getImage function that accepts postId and fieldName
-export async function getImage(endpoint = null, postId, fieldName) {
+export async function getImage(endpoint: string, postId, fieldName) {
   try {
     let content = await getPost(endpoint, postId);
     console.log('cont', content);

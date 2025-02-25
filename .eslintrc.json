@@ -59,6 +59,19 @@
       "rules": {
         "import/no-unresolved": "off"
       }
+    },
+    {
+      "files": [
+        "*.js"
+      ],
+      "extends": [
+        "eslint:recommended"
+      ],
+      "parser": "espree",
+      "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+      }
     }
   ],
   "settings": {

@@ -1,3 +1,3 @@
-import * as wordpress from './wordpress/index.js';
+import * as strapi from './strapi/index.js';
 
-export { wordpress };
+export { strapi };

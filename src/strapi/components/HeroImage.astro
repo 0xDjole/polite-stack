@@ -1,0 +1,15 @@
+---
+import { config } from '../config';
+
+export interface Props {
+  id: number;
+  alt?: string;
+  endpoint?: string;
+}
+
+const { id, alt = '', endpoint = config.endpoint } = Astro.props;
+
+let imageUrl = `${endpoint}/uploads/${id}`;
+---
+
+{imageUrl ? <img src={imageUrl} alt={alt} /> : null}

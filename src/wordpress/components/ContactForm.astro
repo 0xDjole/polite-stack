@@ -1,0 +1,212 @@
+---
+// src/lib/wordpress/components/ACFForm.astro
+import { getPost } from '../api.js';
+import { config } from '../index.js';
+
+export interface Props {
+  postId: number; // Post containing ACF fields
+  endpoint?: string;
+  submitUrl?: string;
+}
+
+const {
+  postId,
+  endpoint = config.endpoint,
+  submitUrl = 'https://formsubmit.co/your@email.com', // Change this
+} = Astro.props;
+
+// Fetch the post with ACF fields
+const post = await getPost(endpoint, postId);
+console.log('ss', post);
+const acfData = post?.acf || {};
+console.log('ac', acfData);
+
+// Define field types based on ACF field keys or special handling
+function getFieldProps(key, value) {
+  // Start with default props
+  const props = {
+    name: key,
+    label: key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+    required: false,
+    options: null,
+  };
+
+  // Determine type based on field key
+  switch (key) {
+    case 'email':
+      props.type = 'email';
+      props.required = true;
+      break;
+    case 'age':
+      props.type = 'number';
+      break;
+    case 'time':
+      props.type = 'datetime-local';
+      break;
+    case 'treatment':
+      props.type = 'select';
+      // For select fields, the options should be in value.choices or similar
+      if (value && typeof value === 'object') {
+        props.options = Array.isArray(value)
+          ? value.map((v) => ({ value: v, label: v }))
+          : Object.entries(value).map(([v, l]) => ({ value: v, label: l }));
+      }
+      break;
+    case 'checkbox':
+    case 'agree':
+    case 'consent':
+      props.type = 'checkbox';
+      break;
+    default:
+      // Default to text for unknown types
+      props.type = 'text';
+  }
+
+  return props;
+}
+
+// Get form fields from ACF data
+const formFields = Object.entries(acfData).map(([key, value]) => getFieldProps(key, value));
+
+// Unique form ID
+const formId = `form-${postId}`;
+---
+
+<div class="acf-form">
+  <form id={formId} action={submitUrl} method="POST" class="form">
+    {
+      formFields.map((field) => (
+        <div class="form-field" data-field-type={field.type}>
+          {field.type === 'checkbox' ? (
+            <div class="checkbox-field">
+              <input
+                type="checkbox"
+                id={`${formId}-${field.name}`}
+                name={field.name}
+                value="yes"
+                required={field.required}
+              />
+              <label for={`${formId}-${field.name}`}>
+                {field.label}
+                {field.required && <span class="required">*</span>}
+              </label>
+            </div>
+          ) : (
+            <>
+              <label for={`${formId}-${field.name}`}>
+                {field.label}
+                {field.required && <span class="required">*</span>}
+              </label>
+
+              {field.type === 'select' ? (
+                <select id={`${formId}-${field.name}`} name={field.name} required={field.required}>
+                  <option value="">-- Select {field.label} --</option>
+                  {field.options &&
+                    field.options.map((option) => (
+                      <option value={option.value}>{option.label}</option>
+                    ))}
+                </select>
+              ) : field.type === 'textarea' ? (
+                <textarea
+                  id={`${formId}-${field.name}`}
+                  name={field.name}
+                  required={field.required}
+                />
+              ) : field.type === 'datetime-local' ? (
+                <input
+                  type="datetime-local"
+                  id={`${formId}-${field.name}`}
+                  name={field.name}
+                  required={field.required}
+                />
+              ) : (
+                <input
+                  type={field.type}
+                  id={`${formId}-${field.name}`}
+                  name={field.name}
+                  required={field.required}
+                />
+              )}
+            </>
+          )}
+        </div>
+      ))
+    }
+
+    <button type="submit" class="submit-button">Submit</button>
+  </form>
+</div>
+
+<style>
+  .acf-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-field[data-field-type='checkbox'] {
+    flex-direction: row;
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .checkbox-field input {
+    margin: 0;
+  }
+
+  label {
+    font-weight: 500;
+  }
+
+  .required {
+    color: red;
+    margin-left: 0.25rem;
+  }
+
+  input:not([type='checkbox']),
+  select,
+  textarea {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .submit-button {
+    margin-top: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+
+  .submit-button:hover {
+    background-color: #2c5282;
+  }
+</style>

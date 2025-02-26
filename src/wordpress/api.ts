@@ -122,6 +122,8 @@ export async function getPost(endpoint: string, id: number) {
       },
     });
 
+    console.log('reee', response.data);
+
     return response.data;
   } catch (error) {
     return null;
